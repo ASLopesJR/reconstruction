@@ -109,9 +109,9 @@ class SnakesFactory:
         filtimage = median_filter(self.image_fr_zs, size=2)
         edges = self.ct.arrrebin(filtimage,self.rebin)
         edcopy = edges.copy()
-        edcopyTight = nred_cython(edcopy,rescale,min_neighbors_average)
+        #edcopyTight = nred_cython(edcopy,rescale,self.options.min_neighbors_average)
 
-        #edcopyTight = tl.noisereductor(edcopy,rescale,self.options.min_neighbors_average)
+        edcopyTight = tl.noisereductor(edcopy,rescale,self.options.min_neighbors_average)
 
         # make the clustering with DBSCAN algo
         # this kills all macrobins with N photons < 1
@@ -124,16 +124,16 @@ class SnakesFactory:
         image_fr_zs_vignetted = self.ct.vignette_corr(self.image_fr_zs,self.vignette)
 
         if tip=='3D':
-            X = sim3d_cython(edcopyTight.astype(int),points)
-            X1 = [(ix,iy) for ix,iy in points]          # Aux variable to simulate the Z-dimension
-#            for ix,iy in points:                        # Looping over the non-empty coordinates
-#                nreplicas = int(self.image[ix,iy])-1
-#                for count in range(nreplicas):                                # Looping over the number of 'photons' in that coordinate
-#                    Xl.append((ix,iy))                              # add a coordinate repeatedly
-#            X = np.array(Xl)                                        # Convert the list to an array
-#        else:
-#            X = points.copy()
-#            X1 = X
+           # X = sim3d_cython(edcopyTight.astype(int),points)
+           # X1 = [(ix,iy) for ix,iy in points]          # Aux variable to simulate the Z-dimension
+            for ix,iy in points:                        # Looping over the non-empty coordinates
+                nreplicas = int(self.image[ix,iy])-1
+                for count in range(nreplicas):                                # Looping over the number of 'photons' in that coordinate
+                    Xl.append((ix,iy))                              # add a coordinate repeatedly
+            X = np.array(Xl)                                        # Convert the list to an array
+        else:
+            X = points.copy()
+            X1 = X
 
         if self.options.debug_mode == 0:
             self.options.flag_plot_noise = 0

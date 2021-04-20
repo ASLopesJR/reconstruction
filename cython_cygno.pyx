@@ -51,7 +51,7 @@ def nred_cython(np.ndarray[DTYPE_t, ndim=2] edges, int escala, float meancut=0.3
 def sim3d_cython(np.ndarray[np.int_t, ndim=2] img_rb_zs, np.ndarray[np.int_t, ndim=2] points):
     cdef int size = points.shape[0]
     cdef int k, nreplicas=0
-    cdef np.int_t j,l,idx=0
+    cdef np.int_t j,l,idx1=0,idx2=0
     for k in range(size):
         j = points[k,0]
         l = points[k,1]
@@ -66,12 +66,16 @@ def sim3d_cython(np.ndarray[np.int_t, ndim=2] img_rb_zs, np.ndarray[np.int_t, nd
         l = points[k,1]
         nreplicas = img_rb_zs[j,l]
         if (nreplicas < 1):
-            newpoints[idx,0] = j
-            newpoints[idx,1] = l
-            idx += 1
+            newpoints[idx1,0] = j
+            newpoints[idx1,1] = l
+            idx1 += 1
         else:
-            for count in range(nreplicas):
-                newpoints[(idx),0] = j
-                newpoints[(idx),1] = l
-                idx += 1
+            newpoints[(idx1),0] = j
+            newpoints[(idx1),1] = l
+            idx1 += 1
+            for count in range(nreplicas-1):
+                newpoints[(idx2+size),0] = j
+                newpoints[(idx2+size),1] = l
+                idx2 += 1
     return newpoints
+
